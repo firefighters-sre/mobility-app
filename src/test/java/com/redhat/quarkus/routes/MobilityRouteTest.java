@@ -16,9 +16,6 @@ import org.junit.jupiter.api.Test;
 public class MobilityRouteTest extends CamelQuarkusTestSupport {
 
   @Inject
-  MobilityRoute mobilityRoute;
-
-  @Inject
   ProducerTemplate producerTemplate;
 
   @Inject
