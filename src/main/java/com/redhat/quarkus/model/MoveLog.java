@@ -1,42 +1,49 @@
 package com.redhat.quarkus.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class MoveLog {
 
-  private Long personId;
-  private String destination;
-  private String preferredRoute;
+    @JsonProperty("personId")
+    private Long personId;
 
-  public Long getPersonId() {
-      return personId;
-  }
+    @JsonProperty("destination")
+    private String destination;
 
-  public void setPersonId(Long personId) {
-      this.personId = personId;
-  }
+    @JsonProperty("preferredRoute")
+    private String preferredRoute;
 
-  public String getDestination() {
-      return destination;
-  }
+    public Long getPersonId() {
+        return personId;
+    }
 
-  public void setDestination(String destination) {
-      this.destination = destination;
-  }
+    public void setPersonId(Long personId) {
+        this.personId = personId;
+    }
+    
+    public String getDestination() {
+        return destination;
+    }
 
-  public String getPreferredRoute() {
-    return preferredRoute;
-}
+    public void setDestination(String destination) {
+        this.destination = destination;
+    }
 
-public void setPreferredRoute(String preferredRoute) {
-    this.preferredRoute = preferredRoute;
-}
+    public String getPreferredRoute() {
+        return preferredRoute;
+    }
 
-  @Override
-  public String toString() {
-      return "MoveLog{" +
-              ", personId=" + personId +
-              ", destination='" + destination + '\'' +
-              ", preferredRoute='" + preferredRoute + '\'' +
-              '}';
-  }
-  
+    public void setPreferredRoute(String preferredRoute) {
+        this.preferredRoute = preferredRoute;
+    }
+
+    @Override
+    public String toString() {
+        return "MoveLog{" +
+                " personId=" + personId +
+                ", destination='" + destination + '\'' +
+                ", preferredRoute='" + preferredRoute + '\'' +
+                '}';
+    }
+
 }

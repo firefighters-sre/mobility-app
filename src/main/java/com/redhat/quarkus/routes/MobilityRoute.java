@@ -1,7 +1,5 @@
 package com.redhat.quarkus.routes;
 
-import com.redhat.quarkus.model.MoveLog;
-
 import org.apache.camel.builder.RouteBuilder;
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -13,7 +11,6 @@ public class MobilityRoute extends RouteBuilder {
 
         from("kafka:{{kafka.topic.entrance.name}}")
             .routeId("FromEntranceToElevatorOrStairs")
-            .unmarshal().json(MoveLog.class)
             .choice()
                 .when(simple("${body.preferredRoute} == 'elevator'"))
                     .log("Redirect \"${body}\" to Elevator")
