@@ -19,13 +19,13 @@ public class MobilityRoute extends RouteBuilder {
             .choice()
                 .when(simple("${body.preferredRoute} == 'elevator'"))
                     .log("Redirect \"${body}\" to Elevator")
-                    .delay(simple("${body.destination} * 10000")) // 30 seconds per floor
+                    .delay(simple("${body.destinatio.toLong} * 1000")) // 1 second per floor
                     .marshal().json()
                     .to("kafka:{{kafka.topic.elevator.name}}")
                 .endChoice()
                 .when(simple("${body.preferredRoute} == 'stairs'"))
                     .log("Redirect \"${body}\" to Stairs")
-                    .delay(simple("${body.destination} * 30000")) // 10 seconds per floor
+                    .delay(simple("${body.destination.toLong} * 3000")) // 3 seconds per floor
                     .marshal().json()
                     .to("kafka:{{kafka.topic.stairs.name}}")
                 .endChoice()
