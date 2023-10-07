@@ -4,6 +4,7 @@ public class MoveLog {
 
   private Long personId;
   private String destination;
+  private String preferredRoute;
 
   public Long getPersonId() {
       return personId;
@@ -21,11 +22,20 @@ public class MoveLog {
       this.destination = destination;
   }
 
+  public String getPreferredRoute() {
+    return preferredRoute;
+}
+
+public void setPreferredRoute(String preferredRoute) {
+    this.preferredRoute = preferredRoute;
+}
+
   @Override
   public String toString() {
       return "MoveLog{" +
               ", personId=" + personId +
               ", destination='" + destination + '\'' +
+              ", preferredRoute='" + preferredRoute + '\'' +
               '}';
   }
   

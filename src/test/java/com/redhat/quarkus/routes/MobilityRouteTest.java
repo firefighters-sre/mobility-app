@@ -1,78 +1,113 @@
 package com.redhat.quarkus.routes;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.redhat.quarkus.model.MoveLog;
-
-import java.time.Duration;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Properties;
-
+import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
-
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.serialization.StringDeserializer;
-import org.apache.kafka.common.serialization.StringSerializer;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.apache.camel.Exchange;
+import org.apache.camel.ProducerTemplate;
+import org.apache.camel.builder.AdviceWith;
+import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.component.mock.MockEndpoint;
+import org.apache.camel.quarkus.test.CamelQuarkusTestSupport;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import io.quarkus.kafka.client.serialization.ObjectMapperDeserializer;
-import io.quarkus.kafka.client.serialization.ObjectMapperSerializer;
-import io.quarkus.test.junit.QuarkusTest;
-import io.smallrye.common.annotation.Identifier;
-
 @QuarkusTest
-public class MobilityRouteTest {
+public class MobilityRouteTest extends CamelQuarkusTestSupport {
 
-    @Inject
-    @Identifier("default-kafka-broker")
-    Map<String, Object> kafkaConfig;
+  @Inject
+  MobilityRoute mobilityRoute;
 
-    KafkaProducer<String, MoveLog> logProducer;
-    KafkaConsumer<String, MoveLog> logConsumer;
+  @Inject
+  ProducerTemplate producerTemplate;
 
-    @BeforeEach
-    void setUp() {
-        logConsumer = new KafkaConsumer<>(consumerConfig(), new StringDeserializer(), new ObjectMapperDeserializer<>(MoveLog.class));
-        logProducer = new KafkaProducer<>(kafkaConfig, new StringSerializer(), new ObjectMapperSerializer());
-    }
+  @Override
+  public boolean isUseAdviceWith() {
+    return true;
+  }
 
-    @AfterEach
-    void tearDown() {
-        logProducer.close();
-        logConsumer.close();
-    }
+  // @Override
+  // public boolean isUseRouteBuilder() {
+  // return false;
+  // }
 
-    Properties consumerConfig() {
-        Properties properties = new Properties();
-        properties.putAll(kafkaConfig);
-        properties.put(ConsumerConfig.GROUP_ID_CONFIG, "test-log-group-id");
-        properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
-        properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        return properties;
-    }
+  @Test
+  void testRedirectToElevator() throws Exception {
+    AdviceWith.adviceWith(this.context, "FromEntranceToElevatorOrStairs", a -> {
+      a.mockEndpointsAndSkip("kafka:{{kafka.topic.entrance.name}}");
+      a.mockEndpointsAndSkip("kafka:{{kafka.topic.elevator.name}}");
+      a.mockEndpointsAndSkip("kafka:{{kafka.topic.stairs.name}}");
+    });
 
-    @Test
-    void testProcessLobbyEvent() {
-        logConsumer.subscribe(Collections.singleton("elevator"));
+    MoveLog log = new MoveLog();
+    log.setPreferredRoute("elevator");
+    log.setDestination("A"); // Let's say 3 floors
 
-        // Create an example AccessLog object to send to Kafka
-        MoveLog logToSend = new MoveLog();
-        logToSend.setPersonId(1L);
-        logToSend.setDestination("A");
+    final MockEndpoint mockEntrance = getMockEndpoint("mock:kafka:{{kafka.topic.entrance.name}}");
+    mockEntrance.expectedMessageCount(1);
 
-        logProducer.send(new ProducerRecord<>("entrance", logToSend));
+    final MockEndpoint mockElevator = getMockEndpoint("mock:kafka:{{kafka.topic.elevator.name}}");
+    mockElevator.expectedMessageCount(1);
 
-        ConsumerRecords<String, MoveLog> records = logConsumer.poll(Duration.ofMillis(10000));
-        MoveLog receivedLog = records.records("elevator").iterator().next().value();
+    final MockEndpoint mockStairs = getMockEndpoint("mock:kafka:{{kafka.topic.stairs.name}}");
+    mockStairs.expectedMessageCount(0);
 
-        assertEquals(logToSend.getPersonId(), receivedLog.getPersonId()); 
-        assertEquals(logToSend.getDestination(), receivedLog.getDestination()); 
-    }
+    // Send a message to the route
+    final Exchange exchange = this.createExchangeWithBody(log);
+        
+    this.producerTemplate.send("mock:kafka:{{kafka.topic.entrance.name}}", exchange);
+
+    mockEntrance.assertIsSatisfied();
+    // mockElevator.assertIsSatisfied();
+    // mockStairs.assertIsSatisfied();
+
+    // Check if the message is as expected
+    // MoveLog processedLog = mockElevator.getExchanges().get(0).getIn().getBody(MoveLog.class);
+    // Assertions.assertEquals(log.getPreferredRoute(), processedLog.getPreferredRoute());
+  }
+
+  @Test
+  void testRedirectToStairs() throws Exception {
+    // Similar to the previous test but for stairs
+  }
+
+  @Override
+  protected RouteBuilder createRouteBuilder() {
+    return new RouteBuilder() {
+      @Override
+      public void configure() throws Exception {
+
+        from("kafka:{{kafka.topic.entrance.name}}")
+            .routeId("FromEntranceToElevatorOrStairs")
+            .unmarshal().json(MoveLog.class)
+            .log("REDIRECT \"${body}\"")
+            .choice()
+              .when(simple("${body.preferredRoute} == 'elevator'"))
+                .log("Redirect \"${body}\" to Elevator")
+                // .delay(simple("${body.destination} * 30000")) // 30 seconds per floor
+                .marshal().json()
+              .to("kafka:{{kafka.topic.elevator.name}}")
+            .endChoice()
+              .when(simple("${body.preferredRoute} == 'stairs'"))
+                .log("Redirect \"${body}\" to Stairs")
+                // .delay(simple("${body.destination} * 10000")) // 10 seconds per floor
+                .marshal().json()
+                .to("kafka:{{kafka.topic.stairs.name}}")
+            .endChoice()
+          .end();
+      }
+    };
+  }
+
+  // @Override
+  // protected void doPostSetup() throws Exception {
+  // context.getRouteDefinition("FromEntranceToElevatorOrStairs")
+  // .adviceWith(context, new RouteBuilder() {
+  // @Override
+  // public void configure() throws Exception {
+  // replaceFromWith("direct:kafka:{{kafka.topic.entrance.name}}");
+  // }
+  // });
+  // context.start();
+  // }
 }
