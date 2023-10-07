@@ -19,7 +19,7 @@ public class MobilityRoute extends RouteBuilder {
             .choice()
                 .when(simple("${body.preferredRoute} == 'elevator'"))
                     .log("Redirect \"${body}\" to Elevator")
-                    .delay(simple("${body.destinatio.toLong} * 1000")) // 1 second per floor
+                    .delay(simple("${body.destination.toLong} * 1000")) // 1 second per floor
                     .marshal().json()
                     .to("kafka:{{kafka.topic.elevator.name}}")
                 .endChoice()
