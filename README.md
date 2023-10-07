@@ -9,7 +9,7 @@ The Mobility App is a Quarkus-based application designed to manage the next step
 
 ## TODO List
 - [X] **Process Kafka `entrance` Topic Events**: Capture and process events from the Kafka topic named `entrance`.
-- [ ] **Decision Logic**: Implement logic to decide whether a message should be directed to `stairs` or `elevator` topics.
+- [X] **Decision Logic**: Implement logic to decide whether a message should be directed to `stairs` or `elevator` topics.
 
 ## Running the application in dev mode
 
