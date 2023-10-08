@@ -22,7 +22,7 @@ The Mobility App is a Quarkus-based application designed to manage the next step
 
 ## Payload Example
 
-Here's an example of a typical payload that the Concierge App expects:
+Here's an example of a typical payload that the Mobiliyy App expects:
 
 ```json
 {
@@ -31,15 +31,6 @@ Here's an example of a typical payload that the Concierge App expects:
     "entryTime": "2023-10-08T09:00:00Z",
     "exitTime": "2023-10-08T17:00:00Z",
     "destination": "5"
-}
-```
-Here's an example of a typical payload that the Concierge App produces:
-
-```json
-{
-    "personId": 12345,
-    "destination": "5",
-    "preferredRoute": "stairs"
 }
 ```
 ## Running the application in dev mode
