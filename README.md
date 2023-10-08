@@ -10,7 +10,26 @@ The Mobility App is a Quarkus-based application designed to manage the next step
 ## TODO List
 - [X] **Process Kafka `entrance` Topic Events**: Capture and process events from the Kafka topic named `entrance`.
 - [X] **Decision Logic**: Implement logic to decide whether a message should be directed to `stairs` or `elevator` topics.
+### 1.1
+- [ ] **Monitoring & Alerting**: Set up monitoring tools to keep track of the app's performance and health.
+- [ ] **Centralized Logging**: Integrate with a centralized logging system for better traceability.
+- [ ] **Enhanced Decision Logic**: Improve the logic that decides whether a person should take the stairs or elevator.
+- [ ] **API Documentation**: Document all exposed APIs and endpoints for better clarity.
+- [ ] **Security**: Implement security best practices and possibly add authentication mechanisms.
+- [ ] **Load Testing**: Conduct performance and load tests to ensure the app's scalability.
+- [ ] **Integration Testing**: Conduct tests to ensure smooth integration with other microservices like `concierge-app` and `building-app`.
 
+## Payload Example
+
+Here's an example of a typical payload that the Mobility App expects on the `entrance` topic:
+
+```json
+{
+    "personId": 12345,
+    "destination": "5",
+    "preferredRoute": "stairs"
+}
+```
 ## Running the application in dev mode
 
 You can run your application in dev mode that enables live coding using:
