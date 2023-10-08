@@ -13,8 +13,9 @@ The Mobility App is a Quarkus-based application designed to manage the next step
 ### 1.1
 - [ ] **Monitoring & Alerting**: Set up monitoring tools to keep track of the app's performance and health.
 - [ ] **Centralized Logging**: Integrate with a centralized logging system for better traceability.
-- [ ] **Enhanced Decision Logic**: Improve the logic that decides whether a person should take the stairs or elevator.
 - [ ] **API Documentation**: Document all exposed APIs and endpoints for better clarity.
+- [ ] **Helm Chart Creation**: Design and implement a Helm chart for streamlined deployments of the `concierge-app` on Kubernetes clusters.
+- [ ] **Enhanced Decision Logic**: Improve the logic that decides whether a person should take the stairs or elevator.
 - [ ] **Security**: Implement security best practices and possibly add authentication mechanisms.
 - [ ] **Load Testing**: Conduct performance and load tests to ensure the app's scalability.
 - [ ] **Integration Testing**: Conduct tests to ensure smooth integration with other microservices like `concierge-app` and `building-app`.
