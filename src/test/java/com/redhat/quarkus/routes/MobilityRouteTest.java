@@ -86,18 +86,18 @@ public class MobilityRouteTest extends CamelQuarkusTestSupport {
         
         from("direct:{{kafka.topic.entrance.name}}")
             .routeId("FromEntranceToElevatorOrStairs")
-            .log("REDIRECT LOG -> \"${body}\"")
             .unmarshal().json(JsonLibrary.Jackson, MoveLog.class)
+            .log("Received movement request with Person ID: ${body.personId}") 
             .choice()
               .when(simple("${body.preferredRoute} == 'elevator'"))
-                .log("Redirect \"${body}\" to Elevator")
+                .log("Redirecting to Elevator ${body.destination}.")
                 // .delay(simple("${body.destination} * 10000")) // 10 seconds per floor
                 .marshal().json()
                 .log("Redirect \"${body}\" to Elevator")
                 .to("mock:{{kafka.topic.elevator.name}}")
               .endChoice()
               .when(simple("${body.preferredRoute} == 'stairs'"))
-                .log("Redirect \"${body}\" to Stairs")
+                .log("Redirecting to Stairs ${body.destination}.")
                 // .delay(simple("${body.destination} * 20000")) // 20 seconds per floor
                 .marshal().json()
                 .to("mock:{{kafka.topic.stairs.name}}")
