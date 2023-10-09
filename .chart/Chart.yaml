@@ -8,7 +8,7 @@ kubeVersion: '>=1.11.0-0'
 home: https://github.com/firefighters-sre/mobility-app
 keywords:
   - sre
-  - concierge
+  - mobility
 maintainers:
   - name: gsampaio
 dependencies:
