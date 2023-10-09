@@ -99,6 +99,35 @@ You can access the captured metrics in real-time by navigating to the endpoint `
   - **Description**: Time taken to send messages to endpoints.
   - **Details**: Provides detailed performance metrics about message handling times.
 
+## Service Level Objectives and Agreements for Mobility-App
+
+To maintain a premium service and establish clear expectations for our users, the `mobility-app` has the following Service Level Objectives (SLOs) and Service Level Agreements (SLAs) in place:
+
+### Service Level Objectives (SLOs)
+
+1. **Availability SLO**: 
+   - **Objective**: Ensure 99.9% uptime over a 10-minute window.
+   - **Alerting**: Prometheus rules have been created to observe and alert if any deviations occur.
+
+2. **Elevator Response Time SLO**: 
+   - **Objective**: Ensure elevators respond and arrive within 30 seconds of a request during fire incidents.
+   - **Alerting**: Prometheus rules are configured to monitor and alert if the elevator response time exceeds the set limit.
+
+3. **Stairs Traffic Flow SLO**: 
+   - **Objective**: Maintain a steady flow of individuals using stairs to prevent bottlenecks or overcrowding.
+   - **Alerting**: Monitoring systems are in place to notify of any congestion in stairwells.
+
+### Service Level Agreements (SLAs)
+
+1. **Availability SLA**: 
+   - **Agreement**: If uptime falls below 99.8% in a 10-minute window, impacted users will be credited accordingly.
+
+2. **Elevator Response Time SLA**: 
+   - **Agreement**: If the average elevator response time exceeds 40 seconds over a 30-minute period, affected users will receive service credits.
+
+3. **Stairs Traffic Flow SLA**:
+   - **Agreement**: If congestion in stairwells persists for more than 15 minutes, impacted users will receive service credits.
+
 ## Running the application in dev mode
 
 You can run your application in dev mode that enables live coding using:

@@ -19,23 +19,30 @@ public class MobilityRoute extends RouteBuilder {
             .log("Received movement request with Person ID: ${body.personId}") 
             .choice()
                 .when(simple("${body.preferredRoute} == 'elevator'"))
-                    .to("micrometer:timer:elevatorTimerRequest?action=start")
-                    .log("Redirecting to Elevator ${body.destination}.")
-                    // .delay(simple("${body.destination.toLong} * 1000")) // 1 second per floor
-                    .marshal().json()
-                    .to("kafka:{{kafka.topic.elevator.name}}")
-                    .to("micrometer:timer:elevatorTimerRequest?action=stop")
-                    .to("micrometer:counter:elevatorCounter")
+                    .to("direct:elevatorProcessing")
                 .endChoice()
                 .when(simple("${body.preferredRoute} == 'stairs'"))
-                    .to("micrometer:timer:stairsTimerRequest?action=start")
-                    .log("Redirecting to Stairs ${body.destination}")
-                    // .delay(simple("${body.destination.toLong} * 3000")) // 3 seconds per floor
-                    .marshal().json()
-                    .to("kafka:{{kafka.topic.stairs.name}}")
-                    .to("micrometer:timer:stairsTimerRequest?action=stop")
-                    .to("micrometer:counter:stairsCounter")
-                .endChoice()
+                    .to("direct:stairsProcessing")
             .end();
+        
+        from("direct:elevatorProcessing")
+            .routeId("ElevatorProcessing")
+            .to("micrometer:timer:elevatorTimerRequest?action=start")
+            .log("Redirecting to Elevator ${body.destination}.")
+            // .delay(simple("${body.destination.toLong} * 1000")) // 1 second per floor
+            .marshal().json()
+            .to("kafka:{{kafka.topic.elevator.name}}")
+            .to("micrometer:timer:elevatorTimerRequest?action=stop")
+            .to("micrometer:counter:elevatorCounter");
+        
+        from("direct:stairsProcessing")
+            .routeId("StairsProcessing")
+            .to("micrometer:timer:stairsTimerRequest?action=start")
+            .log("Redirecting to Stairs ${body.destination}")
+            // .delay(simple("${body.destination.toLong} * 3000")) // 3 seconds per floor
+            .marshal().json()
+            .to("kafka:{{kafka.topic.stairs.name}}")
+            .to("micrometer:timer:stairsTimerRequest?action=stop")
+            .to("micrometer:counter:stairsCounter");
     }
 }

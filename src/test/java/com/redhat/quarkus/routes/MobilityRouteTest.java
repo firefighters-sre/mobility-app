@@ -90,19 +90,26 @@ public class MobilityRouteTest extends CamelQuarkusTestSupport {
             .log("Received movement request with Person ID: ${body.personId}") 
             .choice()
               .when(simple("${body.preferredRoute} == 'elevator'"))
-                .log("Redirecting to Elevator ${body.destination}.")
-                // .delay(simple("${body.destination} * 10000")) // 10 seconds per floor
-                .marshal().json()
-                .log("Redirect \"${body}\" to Elevator")
-                .to("mock:{{kafka.topic.elevator.name}}")
+                .to("direct:elevatorProcessing")
               .endChoice()
               .when(simple("${body.preferredRoute} == 'stairs'"))
-                .log("Redirecting to Stairs ${body.destination}.")
-                // .delay(simple("${body.destination} * 20000")) // 20 seconds per floor
-                .marshal().json()
-                .to("mock:{{kafka.topic.stairs.name}}")
+                .to("direct:stairsProcessing")
               .endChoice()
             .end();
+        
+        from("direct:elevatorProcessing")
+            .routeId("ElevatorProcessing")
+            .log("Redirecting to Elevator ${body.destination}.")
+            // .delay(simple("${body.destination.toLong} * 1000")) // 1 second per floor
+            .marshal().json()
+            .to("mock:{{kafka.topic.elevator.name}}");
+        
+        from("direct:stairsProcessing")
+            .routeId("StairsProcessing")
+            .log("Redirecting to Stairs ${body.destination}")
+            // .delay(simple("${body.destination.toLong} * 3000")) // 3 seconds per floor
+            .marshal().json()
+            .to("mock:{{kafka.topic.stairs.name}}");
       }
     };
   }

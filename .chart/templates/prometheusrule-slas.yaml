@@ -29,4 +29,22 @@ spec:
       for: 1h
       labels:
         severity: {{ .Values.prometheus.slas.severity | default "critical" }}
+
+    # Elevator Response Time SLA: If average elevator response time exceeds 40 seconds over a 30-minute window, trigger an SLA breach alert.
+    - alert: {{ include "quarkus-app.fullname" . }} SLA Breach - Elevator Response Time
+      annotations:
+        message: '{{ include "quarkus-app.fullname" . }} in namespace {{ .Values.namespace }} has breached the SLA for elevator response time over the past 30 minutes.'
+      expr: rate(camel_route_policy_seconds{namespace="{{ .Values.namespace }}", app="{{ include "quarkus-app.fullname" . }}", route="ElevatorProcessing"}[30m]) > 40
+      for: 30m
+      labels:
+        severity: {{ .Values.prometheus.slas.severity | default "critical" }}
+
+    # Stairs Traffic Flow SLA: If congestion in stairwells persists for over 15 minutes.
+    - alert: {{ include "quarkus-app.fullname" . }} SLA Breach - Stairs Traffic Congestion
+      annotations:
+        message: '{{ include "quarkus-app.fullname" . }} in namespace {{ .Values.namespace }} has breached the SLA for stairs traffic flow over the past 15 minutes.'
+      expr: rate(camel_exchanges_inflight{namespace="{{ .Values.namespace }}", app="{{ include "quarkus-app.fullname" . }}", route="StairsProcessing"}[15m]) > 5
+      for: 15m
+      labels:
+        severity: {{ .Values.prometheus.slas.severity | default "critical" }}
 {{ end }}

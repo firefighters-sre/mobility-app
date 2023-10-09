@@ -38,4 +38,31 @@ spec:
       for: 10m
       labels:
         severity: {{ .Values.prometheus.slos.severity | default "warning" }}
+    
+    # Elevator Response Time: Ensure elevators respond and arrive within 30 seconds of a request during fire incidents.
+    - alert: {{ include "quarkus-app.fullname" . }} Elevator Response Time Exceeded
+      annotations:
+        message: '{{ include "quarkus-app.fullname" . }} in namespace {{ .Values.namespace }} has an average elevator response time of more than 30 seconds in the last 10 minutes.'
+      expr: rate(camel_route_policy_seconds{namespace="{{ .Values.namespace }}", app="{{ include "quarkus-app.fullname" . }}", route="ElevatorProcessing"}[10m]) > 30
+      for: 10m
+      labels:
+        severity: {{ .Values.prometheus.slos.severity | default "warning" }}
+
+    # Stairs Traffic Flow: Ensure a steady flow of individuals using stairs, avoiding bottlenecks or overcrowding.
+    - alert: {{ include "quarkus-app.fullname" . }} Stairs Traffic Congestion
+      annotations:
+        message: '{{ include "quarkus-app.fullname" . }} in namespace {{ .Values.namespace }} shows congestion or potential overcrowding in stairwells in the last 10 minutes.'
+      expr: rate(camel_exchanges_inflight{namespace="{{ .Values.namespace }}", app="{{ include "quarkus-app.fullname" . }}", route="StairsProcessing"}[10m]) > 5
+      for: 10m
+      labels:
+        severity: {{ .Values.prometheus.slos.severity | default "warning" }}
+
+    # High External Redeliveries: Alert for high external redeliveries.
+    - alert: {{ include "quarkus-app.fullname" . }} High External Redeliveries
+      annotations:
+        message: '{{ include "quarkus-app.fullname" . }} in namespace {{ .Values.namespace }} has more than 3 external redeliveries in the last 10 minutes.'
+      expr: rate(camel_exchanges_external_redeliveries_total{namespace="{{ .Values.namespace }}", app="{{ include "quarkus-app.fullname" . }}"}[10m]) > 3
+      for: 10m
+      labels:
+        severity: {{ .Values.prometheus.slos.severity | default "warning" }}
 {{ end }}
