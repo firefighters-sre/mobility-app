@@ -1,0 +1,6 @@
+dependencies:
+- name: quarkus-app-chart
+  repository: https://firefighters-sre.github.io/helm-charts/
+  version: 1.0.3
+digest: sha256:2f2299900ad4a6e674ee53b5d14bc0e88119c2ec0615a0d06ac246f47a45e356
+generated: "2023-10-09T00:59:23.605625-03:00"

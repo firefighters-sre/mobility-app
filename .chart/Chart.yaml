@@ -1,0 +1,17 @@
+apiVersion: v2
+name: mobility-app
+description: mobility-app
+type: application
+version: 1.0.0
+appVersion: 1.0.0
+kubeVersion: '>=1.11.0-0'
+home: https://github.com/firefighters-sre/mobility-app
+keywords:
+  - sre
+  - concierge
+maintainers:
+  - name: gsampaio
+dependencies:
+- name: quarkus-app-chart
+  version: "1.0.3"
+  repository: "https://firefighters-sre.github.io/helm-charts/"

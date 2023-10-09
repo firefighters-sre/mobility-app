@@ -1,0 +1,38 @@
+{{- if .Values.prometheus.fireincident.slas }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "quarkus-app.fullname" . }}-fire-slas
+  namespace: {{ .Values.prometheus.namespace }}
+  labels:
+    role: alert-rules
+    app: prometheus
+spec:
+  groups:
+  - name: {{ include "quarkus-app.fullname" . }}.fireincident.slas.rules
+    rules:
+    # Evacuation Time SLA: Review and implement necessary changes if the average evacuation time exceeds 5 minutes for over 5 minutes.
+    - alert: {{ include "quarkus-app.fullname" . }} SLA Breach - EvacuationTimeExceeded
+      annotations:
+        message: '{{ include "quarkus-app.fullname" . }} in namespace {{ .Values.namespace }} has breached the SLA for evacuation time over the past 5 minutes.'
+      expr: |
+        (
+          sum(
+            rate(com_redhat_quarkus_resources_AccessLogResource_processLobbyPostTime_seconds_sum{namespace="{{ .Values.namespace }}", app="{{ include "quarkus-app.fullname" . }}"}[10m])
+            + rate(com_redhat_quarkus_resources_AccessLogResource_processLobbyEventTime_seconds_sum{namespace="{{ .Values.namespace }}", app="{{ include "quarkus-app.fullname" . }}"}[10m])
+            - rate(com_redhat_quarkus_resources_AccessLogResource_processExitPostTime_seconds_sum{namespace="{{ .Values.namespace }}", app="{{ include "quarkus-app.fullname" . }}"}[10m])
+            - rate(com_redhat_quarkus_resources_AccessLogResource_processExitEventTime_seconds_sum{namespace="{{ .Values.namespace }}", app="{{ include "quarkus-app.fullname" . }}"}[10m])
+          ) 
+          / 
+          sum(
+            rate(com_redhat_quarkus_resources_AccessLogResource_processLobbyPostTime_seconds_count{namespace="{{ .Values.namespace }}", app="{{ include "quarkus-app.fullname" . }}"}[10m])
+            + rate(com_redhat_quarkus_resources_AccessLogResource_processLobbyEventTime_seconds_count{namespace="{{ .Values.namespace }}", app="{{ include "quarkus-app.fullname" . }}"}[10m])
+            - rate(com_redhat_quarkus_resources_AccessLogResource_processExitPostTime_seconds_count{namespace="{{ .Values.namespace }}", app="{{ include "quarkus-app.fullname" . }}"}[10m])
+            - rate(com_redhat_quarkus_resources_AccessLogResource_processExitEventTime_seconds_count{namespace="{{ .Values.namespace }}", app="{{ include "quarkus-app.fullname" . }}"}[10m])
+          )
+        ) > 300
+      for: 5m
+      labels:
+        severity: {{ .Values.prometheus.slas.severity | default "critical" }}
+{{ end }}
