@@ -20,7 +20,7 @@ The Mobility App is a Quarkus-based application designed to manage the next step
   - [X] **System Alerts**: Log any system alerts or warnings related to mobility.
 ### 1.0.2
 - [X] **Route Documentation**: Document all routes for better clarity.
-- [X] **Health Endpoint Integration**: Integrated `smallrye-health` to provide health check endpoints for application monitoring.
+- [X] **Health Endpoint Integration**: Integrated `camel-quarkus-microprofile-health` to provide health check endpoints for application monitoring.
 - [X] **Helm Chart Creation**: Design and implement a Helm chart for streamlined deployments of the `mobility-app` on Kubernetes clusters.
 ### 1.0.3
 - [X] **Implement Basic SLOs, SLAs, and Alerting**
