@@ -62,8 +62,7 @@ The Mobility App is a Quarkus-based application designed to manage the next step
 
 - [ ] **Stairs Lighting and Signage**:
   - **Objective**: Maintain 100% uptime for emergency lighting and signage in stairwells during fire incidents.
-  - **Metric**: Continuously monitor the operational status of lighting and signage in stairwells.
-
+  - **Metric**: Continuously monitor the operational status of lighting and signage in stairwells
 
 ### Backlog
 - [ ] **Monitoring**: Set up monitoring tools to keep track of the app's performance and health.
