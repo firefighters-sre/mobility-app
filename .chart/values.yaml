@@ -9,6 +9,7 @@ namespace: helm-test
 quarkus-app-chart:
   nameOverride: mobility-app
   fullnameOverride: mobility-app
+  namespace: helm-test
 
   # OpenShift objects
   route: false
@@ -47,6 +48,13 @@ quarkus-app-chart:
     enabled: false
     mtls: true
     domain: apps.hivec.sandbox209.opentlc.com
+
+  prometheus:
+    namespace: kafka-logging
+    servicemonitor:
+      enabled: true
+    podmonitor:
+      enabled: false
 
 prometheus:
   namespace: kafka-logging
