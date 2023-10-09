@@ -19,9 +19,9 @@ The Mobility App is a Quarkus-based application designed to manage the next step
   - [X] **Elevator Trip Completion**: Log each time the elevator completes a trip, including start and end floors and trip duration.
   - [X] **System Alerts**: Log any system alerts or warnings related to mobility.
 ### 1.0.2
-- [ ] **API Documentation**: Document all exposed APIs and endpoints for better clarity.
+- [X] **Route Documentation**: Document all routes for better clarity.
 - [X] **Health Endpoint Integration**: Integrated `smallrye-health` to provide health check endpoints for application monitoring.
-- [ ] **Helm Chart Creation**: Design and implement a Helm chart for streamlined deployments of the `mobility-app` on Kubernetes clusters.
+- [X] **Helm Chart Creation**: Design and implement a Helm chart for streamlined deployments of the `mobility-app` on Kubernetes clusters.
 ### 1.0.3
 - [ ] **SLOs and SLAs**: Define and implement Service Level Objectives (SLOs) and Service Level Agreements (SLAs) for the mobility services.
 - [ ] **Alerting**: Set up monitoring tools to keep track of the app's performance and health.

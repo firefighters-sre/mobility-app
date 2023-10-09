@@ -7,18 +7,38 @@ The Mobility App is a Quarkus-based application designed to manage the next step
 - **Entrance Event Processing**: Captures and processes events from the Kafka topic named `entrance`.
 - **Stairs or Elevator Decision**: Depending on various factors, directs individuals to either the `stairs` or `elevator` topics.
 
-## Payload Example
+## Camel Route Logic
 
-Here's an example of a typical payload that the Mobiliyy App expects:
+The Mobility App uses Apache Camel to handle incoming events and route individuals based on their preferences:
 
-```json
-{
-    "personId": 12345,
-    "destination": "5",
-    "preferredRoute": "elevator"
-}
-```
+- **Route: From Entrance to Elevator or Stairs**: 
+  - **Source**: Kafka topic `entrance`.
+  - **Description**: Processes new events indicating an individual's desired movement method.
+  - **Example Event**:
+    ```json
+    {
+        "personId": 12345,
+        "preferredRoute": "elevator",
+        "destination": "5"
+    }
+    ```
+  - **Actions**:
+    - If `preferredRoute` is `elevator`, directs to Kafka topic `elevator`.
+    - If `preferredRoute` is `stairs`, directs to Kafka topic `stairs`.
 
+## Event Processing
+
+In the Concierge App, event processing is a crucial feature, especially when dealing with real-time data streams. Here's a breakdown of the Kafka topics the app interacts with:
+
+In the Mobility App, event processing is vital, especially when dealing with real-time data streams that determine the flow of people within the building. Below is a breakdown of the Kafka topics the app interacts with and how it processes incoming and outgoing messages:
+
+#### Input Topics:
+- **`entrance`**: This topic receives processed entry-related events from the Concierge App. The Mobility App processes these events to decide the best route (stairs or elevator) for each individual.
+
+#### Output Topics:
+- **`elevator`**: Individuals preferring the elevator are directed here.
+- **`stairs`**: Individuals preferring the stairs are directed here.
+- 
 ## Monitoring and Metrics 📊
 
 You can access the captured metrics in real-time by navigating to the endpoint `/q/metrics`.
