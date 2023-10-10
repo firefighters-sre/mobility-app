@@ -65,4 +65,23 @@ spec:
       for: 10m
       labels:
         severity: {{ .Values.prometheus.slos.severity | default "warning" }}
+    
+    # Latency SLO Breach for Elevator
+    - alert: {{ include "quarkus-app.fullname" . }} Elevator Response Time Breach
+      annotations:
+        message: '{{ include "quarkus-app.fullname" . }} in namespace {{ .Values.namespace }} has an average elevator response time greater than 0.05 seconds in the last 5 minutes.'
+      expr: (count_over_time((elevatorTimerRequest_seconds_max{camelContext="camel-1", container="mobility-app"} < 0.05 )[5m:]) / count_over_time((elevatorTimerRequest_seconds_max{camelContext="camel-1", container="mobility-app"})[5m:])) * 100 < 99.9
+      for: 5m
+      labels:
+        severity: {{ .Values.prometheus.slos.severity | default "critical" }}
+
+    # Availability SLO Breach
+    - alert: {{ include "quarkus-app.fullname" . }} Availability Breach
+      annotations:
+        message: '{{ include "quarkus-app.fullname" . }} in namespace {{ .Values.namespace }} has an availability lower than 99.9% in the last 10 minutes.'
+      expr: (sum(delta(camel_exchanges_succeeded_total{container="mobility-app", routeId="ElevatorProcessing"}[5m])) / sum(delta(camel_exchanges_total{container="mobility-app", routeId="ElevatorProcessing"}[5m]))) * 100 < 99.9
+      for: 5m
+      labels:
+        severity: {{ .Values.prometheus.slos.severity | default "critical" }}
+
 {{ end }}
