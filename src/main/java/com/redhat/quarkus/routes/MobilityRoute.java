@@ -29,7 +29,16 @@ public class MobilityRoute extends RouteBuilder {
             .routeId("ElevatorProcessing")
             .to("micrometer:timer:elevatorTimerRequest?action=start")
             .log("Redirecting to Elevator ${body.destination}.")
-            // .delay(simple("${body.destination.toLong} * 1000")) // 1 second per floor
+            .choice()
+                .when(simple("${random(1,10)} > 4")) // Simulate a failure 60% of the time
+                    .log("Simulated exception.")
+                    .throwException(new RuntimeException("Simulated exception"))
+            .end()
+            .choice()
+                .when(simple("${random(1,10)} > 5")) // Simulate a delay 50% of the time
+                    .log("Simulated delay.")
+                    .delay(simple("1000")) 
+            .end()
             .marshal().json()
             .to("kafka:{{kafka.topic.elevator.name}}")
             .to("micrometer:timer:elevatorTimerRequest?action=stop")
