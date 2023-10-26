@@ -4,12 +4,12 @@
 nameOverride: mobility-app
 fullnameOverride: mobility-app
 
-namespace: helm-test
+namespace: quarkus-dev
 
 quarkus-app-chart:
   nameOverride: mobility-app
   fullnameOverride: mobility-app
-  namespace: helm-test
+  namespace: quarkus-dev
 
   # OpenShift objects
   route: false
