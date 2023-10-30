@@ -1,9 +1,9 @@
-{{- if .Values.prometheus.slas.enabled }}
+{{- if .Values.prometheus.elevator.slas.enabled }}
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
-  name: {{ include "quarkus-app.fullname" . }}-slas
+  name: {{ include "quarkus-app.fullname" . }}-elevator-stairs-slas
   namespace: {{ .Values.prometheus.namespace }}
   labels:
     role: alert-rules
@@ -12,39 +12,43 @@ spec:
   groups:
   - name: {{ include "quarkus-app.fullname" . }}.slas.rules
     rules:
-    # Availability SLA: If uptime drops below 99.8% in a 10-minute window, trigger an SLA breach alert.
+    # Availability SLA Rule:
+    # This rule triggers an alert if the application's uptime falls below 99.8% within a 10-minute window.
     - alert: {{ include "quarkus-app.fullname" . }} SLA Breach - Low Availability
       annotations:
         message: '{{ include "quarkus-app.fullname" . }} in namespace {{ .Values.namespace }} has breached the SLA for uptime over the past 10 minutes.'
       expr: (1 - avg_over_time(up{namespace="{{ .Values.namespace }}", app="{{ include "quarkus-app.fullname" . }}"}[10m])) > 0.002
       for: 1m
       labels:
-        severity: {{ .Values.prometheus.slas.severity | default "critical" }}
+        severity: {{ .Values.prometheus.elevator.slas.severity | default "critical" }}
 
-    # Latency: If average response time exceeds 200ms for over an hour
+    # Latency SLA Rule:
+    # This rule triggers an alert if the application's average response time exceeds 200 milliseconds for over an hour.
     - alert: {{ include "quarkus-app.fullname" . }} SLA Breach - High Latency
       annotations:
         message: '{{ include "quarkus-app.fullname" . }} in namespace {{ .Values.namespace }} has breached the SLA for latency over the past hour.'
       expr: rate(http_request_duration_seconds_sum{namespace="{{ .Values.namespace }}", app="{{ include "quarkus-app.fullname" . }}"}[1h]) / rate(http_request_duration_seconds_count{namespace="{{ .Values.namespace }}", app="{{ include "quarkus-app.fullname" . }}"}[1h]) > 0.2
       for: 1h
       labels:
-        severity: {{ .Values.prometheus.slas.severity | default "critical" }}
+        severity: {{ .Values.prometheus.elevator.slas.severity | default "critical" }}
 
-    # Elevator Response Time SLA: If average elevator response time exceeds 40 seconds over a 30-minute window, trigger an SLA breach alert.
+    # Elevator Response Time SLA Rule:
+    # This rule triggers an alert if the average elevator response time exceeds 40 seconds within a 30-minute window.
     - alert: {{ include "quarkus-app.fullname" . }} SLA Breach - Elevator Response Time
       annotations:
         message: '{{ include "quarkus-app.fullname" . }} in namespace {{ .Values.namespace }} has breached the SLA for elevator response time over the past 30 minutes.'
       expr: rate(camel_route_policy_seconds{namespace="{{ .Values.namespace }}", app="{{ include "quarkus-app.fullname" . }}", route="ElevatorProcessing"}[30m]) > 40
       for: 30m
       labels:
-        severity: {{ .Values.prometheus.slas.severity | default "critical" }}
+        severity: {{ .Values.prometheus.elevator.slas.severity | default "critical" }}
 
-    # Stairs Traffic Flow SLA: If congestion in stairwells persists for over 15 minutes.
-    - alert: {{ include "quarkus-app.fullname" . }} SLA Breach - Stairs Traffic Congestion
+    # Stairs Traffic Flow SLA Rule:
+    # This rule triggers an alert if there's a sustained congestion in the stairwells for over 15 minutes.
+   - alert: {{ include "quarkus-app.fullname" . }} SLA Breach - Stairs Traffic Congestion
       annotations:
         message: '{{ include "quarkus-app.fullname" . }} in namespace {{ .Values.namespace }} has breached the SLA for stairs traffic flow over the past 15 minutes.'
       expr: rate(camel_exchanges_inflight{namespace="{{ .Values.namespace }}", app="{{ include "quarkus-app.fullname" . }}", route="StairsProcessing"}[15m]) > 5
       for: 15m
       labels:
-        severity: {{ .Values.prometheus.slas.severity | default "critical" }}
+        severity: {{ .Values.prometheus.elevator.slas.severity | default "critical" }}
 {{ end }}
